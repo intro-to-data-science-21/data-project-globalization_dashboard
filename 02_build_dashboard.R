@@ -5,7 +5,14 @@ source("01_build_index.R")
 
 
 
-# JUST COPIED FROM LAB -> ADAPT
+# JUST COPIED FROM LAB -> ADAPT:
+#   - world map (maybe: option to select table output alternatively?)
+#   - year slider
+#   - no variable selection (for now, maybe later comparing to other measures?)
+#   - option to download data table
+#  (- show correlation and/or factor loadings of indicators to proof validity)
+#  (- option to show background information on construction, data sources, benefits)
+
 
 # Define UI ---------------------------------------------------------------
 
