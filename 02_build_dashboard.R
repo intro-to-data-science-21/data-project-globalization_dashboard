@@ -12,7 +12,7 @@ source("01_build_index.R")
 #   - option to download data table
 #  (- show correlation and/or factor loadings of indicators to proof validity)
 #  (- option to show background information on construction, data sources, benefits)
-
+#   - tick boxes for individual variables to ex-/include (ordered by dimensions)
 
 # Define UI ---------------------------------------------------------------
 
