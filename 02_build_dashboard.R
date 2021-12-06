@@ -1,8 +1,11 @@
 ### build dashboard:
 
-# preprocess:
-source("01_build_index.R")
-
+# to preprocess (won't work unless folder /data containing some non-public datasets is available)
+# source("01_build_index.R")
+# INSTEAD: load preprocessed data:
+library(pacman)
+p_load(rio)
+KGI <- rio::import(file = "data_processed/KGI.Rdata")  
 
 
 # JUST COPIED FROM LAB -> ADAPT:

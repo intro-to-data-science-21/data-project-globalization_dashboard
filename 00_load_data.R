@@ -1,5 +1,5 @@
 library(pacman)
-p_load(wbstats, rio)
+p_load(wbstats, rio, tidyverse)
 
 
 ### get data:
@@ -17,6 +17,8 @@ wdi <- wb_data(indicator = c(pop = "SP.POP.TOTL",
                              tourism_out = "ST.INT.DPRT"),
                       start_date = from, end_date = to, 
                       return_wide = T) %>% 
+  # TODO: 
+  # make this work if one of them is NA:
   mutate(fdi = abs(fdi_in) + abs(fdi_out),
          trade = import + export,
          tourism = tourism_in + tourism_out)
