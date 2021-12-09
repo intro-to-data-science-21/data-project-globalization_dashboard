@@ -1,7 +1,11 @@
 library(leaflet)
+library(tidyverse)
 library(sp)
 library(raster)
 library(stringr)
+library(pacman)
+p_load(rio)
+KGI <- rio::import(file = "data_processed/KGI.Rdata") 
 
 getData("ISO3")
 # chi(?), kxk(kosovo)
@@ -55,70 +59,49 @@ for(country_code in w_iso){
   world[[country_code]] <- getData("GADM", country=w_iso[country_code], level=0)
 }
 
-#does not work "Error: argument is missing, with no default"
-countries <- rbind.SpatialPolygonsDataFrame(world$ABW, world$AFG, world$AGO, world$ALB, world$AND, world$ARE, 
-                                            world$ARG, world$ARM, world$ASM, world$ATG, world$AUS, world$AUT,
-                                            world$AZE, world$BDI, world$BEL, world$BEN, world$BFA, world$BGD,
-                                            world$BGR, world$BHR, world$BHS, world$BIH, world$BLR, world$BLZ,
-                                            world$BMU, world$BOL, world$BRA, world$BRB, world$BRN, world$BTN,
-                                            world$BWA, world$CAF, world$CAN, world$CHE, world$CHL, world$CHN,
-                                            world$CIV, world$CMR, world$COD, world$COG, world$COL, world$COM,
-                                            world$CPV, world$CRI, world$CUB, world$CUW, world$CYM, world$CYP,
-                                            world$CZE, world$DEU, world$DJI, world$DMA, world$DNK, world$DOM,
-                                            world$DZA, world$ECU, world$EHY, world$ERI, world$ESP, world$EST,
-                                            world$ETH, world$FIN, world$FJI, world$FRA, world$FRO, world$FSM,
-                                            world$GAB, world$GBR, world$GEO, world$GHA, world$GIB, world$GIN,
-                                            world$GMB, world$GNB, world$GNQ, world$GRC, world$GRD, world$GRL,
-                                            world$GTM, world$GUM, world$GUY, world$HKG, world$HND, world$HRV,
-                                            world$HTI, world$HUN, world$IDN, world$IMN, world$IND, world$IRL,
-                                            world$IRN, world$IRQ, world$ISL, world$ISR, world$ITA, world$JAM,
-                                            world$JOR, world$JPN, world$KAZ, world$KEN, world$KGZ, world$KHM,
-                                            world$KIR, world$KNA, world$KOR, world$KWT, world$LAO, world$LBN,
-                                            world$LBR, world$LBY, world$LCA, world$LIE, world$LKA, world$LSO,
-                                            world$LTU, world$LUX, world$LVA, world$MAC, world$MAF, world$MAR,
-                                            world$MCO, world$MDA, world$MDG, world$MDV, world$MEX, world$MHL,
-                                            world$MKD, world$MLI, world$MLT, world$MMR, world$MNE, world$MNG,
-                                            world$MNP, world$MOZ, world$MRT, world$MUS, world$MWI, world$MYS,
-                                            world$NAM, world$NCL, world$NER, world$NGA, world$NIC, world$NLD,
-                                            world$NOR, world$NPL, world$NRU, world$NZL, world$OMN, world$PAK,
-                                            world$PAN, world$PER, world$PHL, world$PLW, world$PNG, world$POL,
-                                            world$PRI, world$PRK, world$PRT, world$PRY, world$PSE, world$PYF,
-                                            world$QAT, world$ROU, world$RUS, world$RWA, world$SAU, world$SDN,
-                                            world$SEN, world$SGP, world$SLB, world$SLE, world$SLV, world$SMR,
-                                            world$SOM, world$SRB, world$SSD, world$STP, world$SUR, world$SVK,
-                                            world$SVN, world$SWE, world$SWZ, world$SXM, world$SYC, world$SYR,
-                                            world$TCA, world$TCD, world$TGO, world$THA, world$TJK, world$TKM,
-                                            world$TLS, world$TON, world$TTO, world$TUN, world$TUR, world$TUV,
-                                            world$TZA, world$UGA, world$UKR, world$URY, world$USA, world$UZB,
-                                            world$VCT, world$VEN, world$VGB, world$VIR, world$VNM, world$VUT,
-                                            world$WS,, world$YEM, world$ZAF, world$ZMB, world$ZWE, makeUniqueIDs = TRUE)
-
-
-leaflet() %>% 
-  addTiles() %>% 
-  addPolygons(data = countries, stroke = FALSE)
-
-# Colors quantile map
-col_pal_q <- colorQuantile(palette = "BuPu", domain = KGI$KGI)
-
-leaflet() %>% 
-  addTiles() %>% 
-  addPolygons(data = countries,
-              stroke = FALSE,
-              fillColor = ~col_pal_q(KGI$KGI),
-              popup = paste("Country:", KGI$country, "<br>",
-                            "KGI:", KGI$KGI, "<br>"),
-              fillOpacity = 0.9,
-              color = "white",
-              weight = 0.3) %>% 
-  addLegend(position= "bottomleft", pal = col_pal_q, values = KGI$KGI, title = "KGI by country")
+countries_SPDF <- rbind(world$ABW,world$AFG,world$AGO,world$ALB,world$AND,world$ARE,
+                        world$ARG,world$ARM,world$ASM,world$ATG,world$AUS,world$AUT,
+                        world$AZE,world$AZE,world$BDI,world$BEL,world$BEN,world$BFA,
+                        world$BGD,world$BGR,world$BHR,world$BHS,world$BIH,world$BLR,
+                        world$BLZ,world$BMU,world$BOL,world$BRA,world$BRB,world$BRN,
+                        world$BTN,world$BWA,world$CAF,world$CAN,world$CHE,world$CHL,
+                        world$CHL,world$CHN,world$CIV,world$CMR,world$COD,world$COL,
+                        world$COM,world$CPV,world$CRI,world$CUB,world$CUW,world$CYM,
+                        world$CYP,world$CZE,world$DEU,world$DJI,world$DMA,world$DNK,
+                        world$DOM,world$DZA,world$ECU,world$EGY,world$ERI,world$ESP,
+                        world$EST,world$ETH,world$FIN,world$FJI,world$FRA,world$FRO,
+                        world$FSM,world$GAB,world$GBR,world$GEO,world$GHA,world$GIB,
+                        world$GIN,world$GMB,world$GNB,world$GNQ,world$GRC,world$GRD,
+                        world$GRL,world$GTM,world$GUM,world$GUY,world$HKG,world$HND,
+                        world$HRV,world$HTI,world$HUN,world$IDN,world$IMN,world$IND,
+                        world$IRL,world$IRN,world$IRQ,world$ISL,world$ISR,world$ITA,
+                        world$JAM,world$JOR,world$JPN,world$KAZ,world$KEN,world$KGZ,
+                        world$KHM,world$KIR,world$KNA,world$KOR,world$KWT,world$LAO,
+                        world$LBN,world$LBR,world$LBY,world$LCA,world$LIE,world$LKA,
+                        world$LSO,world$LTU,world$LUX,world$LVA,world$MAC,world$MAF,
+                        world$MAR,world$MCO,world$MDA,world$MDG,world$MDV,world$MEX,
+                        world$MHL,world$MKD,world$MLI,world$MLT,world$MMR,world$MNE,
+                        world$MNG,world$MNP,world$MOZ,world$MRT,world$MUS,world$MWI,
+                        world$MYS,world$NAM,world$NCL,world$NER,world$NGA,world$NIC,
+                        world$NLD,world$NOR,world$NPL,world$NRU,world$NZL,world$OMN,
+                        world$PAK,world$PAN,world$PER,world$PHL,world$PLW,world$PNG,
+                        world$POL,world$PRI,world$PRK,world$PRT,world$PRY,world$PSE,
+                        world$PYF,world$QAT,world$ROU,world$RUS,world$RWA,world$SAU,
+                        world$SDN,world$SEN,world$SGP,world$SLB,world$SLE,world$SLV,
+                        world$SMR,world$SOM,world$SRB,world$SSD,world$STP,world$SUR,
+                        world$SVK,world$SVN,world$SWE,world$SWZ,world$SXM,world$SYC,
+                        world$SYR,world$TCA,world$TCD,world$TGO,world$THA,world$TJK,
+                        world$TKM,world$TLS,world$TON,world$TTO,world$TUN,world$TUR,
+                        world$TUV,world$TZA,world$UGA,world$UKR,world$URY,world$USA,
+                        world$UZB,world$VCT,world$VEN,world$VGB,world$VIR,world$VNM,
+                        world$VUT,world$WSM,world$YEM,world$ZAF,world$ZMB,world$ZWE)
 
 #color numeric map
 col_pal_q <- colorNumeric(palette = "Blues", domain = KGI$KGI)
 
 leaflet() %>% 
   addTiles() %>% 
-  addPolygons(data = countries,
+  addPolygons(data = countries_SPDF,
               stroke = FALSE,
               fillColor = ~col_pal_q(KGI$KGI),
               popup = paste("Country:", KGI$country, "<br>",
@@ -127,3 +110,24 @@ leaflet() %>%
               color = "white",
               weight = 0.3) %>% 
   addLegend(position= "bottomleft", pal = col_pal_q, values = KGI$KGI, title = "KGI by country")
+
+#basic map
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data = countries_SPDF, stroke = FALSE)
+
+# Colors quantile map
+col_pal_q <- colorQuantile(palette = "BuPu", domain = KGI$KGI)
+
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data = countries_SPDF,
+              stroke = FALSE,
+              fillColor = ~col_pal_q(KGI$KGI),
+              popup = paste("Country:", KGI$country, "<br>",
+                            "KGI:", KGI$KGI, "<br>"),
+              fillOpacity = 0.9,
+              color = "white",
+              weight = 0.3) %>% 
+  addLegend(position= "bottomleft", pal = col_pal_q, values = KGI$KGI, title = "KGI by country")
+
