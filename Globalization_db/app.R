@@ -1,39 +1,74 @@
+# Load packages and data
 library(shiny)
-library(leaflet)
 library(pacman)
+library(plotly)
+library(dplyr)
+library(readr)
+library(tidyverse)
+
 p_load(rio)
-KGI <- rio::import(file = "KGI.Rdata")
+KGIdata <- rio::import(file = "data_processed/KGI.Rdata")%>%
+    mutate(hover = paste0(country, "\nKGI:", KGI))
 
+# Define UI ----------------------------------------------------------------
 ui <- fluidPage(
-    titlePanel("A Globalization Dashboard"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput(KGI$date,
-                        "Year",
-                        min = 1990,
-                        max = 2020,
-                        value = 2020,
-                        sep = "")
+    titlePanel("A Globalization Dashboard (1990 - 2020)"),
+    fluidRow(
+        column(3,
+               wellPanel(
+                   # here we can add some other commands/filters/sliders/info,
+                   # since the plot itself come swith a year slider
+               )
         ),
-
-        mainPanel(
-            leafletOutput("map") 
+        column(9,
+               plotlyOutput("world_map")
+               )
         )
     )
-)
 
-# Define server logic required to draw the map (see 03_map)
+# Define Server -----------------------------------------------------------
 server <- function(input, output) {
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    output$world_map <- renderPlotly({
+        # Define plotly map's properties, font, labels, and layout
+        graph_properties <- list(
+        scope = 'world',
+        showland = TRUE,
+        landcolor = toRGB("white"),
+        color = toRGB("white"))
+        
+        font = list(
+        family = "DM Sans",
+        size = 15,
+        color = "black")
+        
+        label = list(
+        bgcolor = "#EEEEEE",
+        bordercolor = "transparent",
+        font = font)
+        
+        borders_layout <- list(color = toRGB("grey"), width = 0.5)
+        
+        map_layout <- list(
+        showframe = FALSE,
+        showcoastlines = FALSE,
+        projection = list(type = 'Mercator'))
+        # Build actual plotly map
+        world_map = plot_geo(KGIdata, 
+                         locationmode = "world", 
+                         frame = ~date) %>%
+            add_trace(locations = ~iso3c,
+                  z = ~KGI,
+                  zmin = 0,
+                  zmax = max(KGIdata$KGI),
+                  color = ~KGI,
+                  colorscale = "Paired",
+                  text = ~hover,
+                  hoverinfo = 'text') %>%
+            layout(geo = map_layout,
+                   font = list(family = "DM Sans")) %>%
+            style(hoverlabel=label) %>%
+            config(displayModeBar=FALSE)
     })
 }
 

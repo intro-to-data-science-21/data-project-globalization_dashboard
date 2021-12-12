@@ -5,8 +5,8 @@
 # INSTEAD: load preprocessed data:
 library(pacman)
 p_load(rio)
-KGI <- rio::import(file = "data_processed/KGI.Rdata")  
-
+KGIdata <- rio::import(file = "data_processed/KGI.Rdata")%>%
+   mutate(hover = paste0(country, "\nKGI:", KGI))
 
 # JUST COPIED FROM LAB -> ADAPT:
 #   - world map (maybe: option to select table output alternatively?)
