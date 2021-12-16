@@ -2,7 +2,7 @@ library(pacman)
 p_load(wbstats, rio, tidyverse)
 
 
-### get data:
+### get data from WDI: ----
 from <- 1990
 to <- 2020
 
@@ -17,13 +17,19 @@ wdi <- wb_data(indicator = c(pop = "SP.POP.TOTL",
                              tourism_out = "ST.INT.DPRT"),
                       start_date = from, end_date = to, 
                       return_wide = T) %>% 
-  # TODO: 
-  # make this work if one of them is NA:
-  mutate(fdi = abs(fdi_in) + abs(fdi_out),
-         trade = import + export,
-         tourism = tourism_in + tourism_out)
+  rowwise() %>% 
+  # if only in OR out is not reported, it's assumed that the other is neglectable (see Schröder 2020)
+  mutate(fdi = ifelse(is.na(fdi_in) && is.na(fdi_out),
+                      NA,
+                      sum(abs(fdi_in), abs(fdi_out), na.rm = T)),
+         trade = ifelse(is.na(import) && is.na(export),
+                        NA,
+                        sum(import, export, na.rm = T)),
+         tourism = ifelse(is.na(tourism_in) && is.na(tourism_out),
+                          NA, 
+                          sum(tourism_in, tourism_out, na.rm = T)))
 
-### Indicators not available via WDI:
+### Indicators not available via WDI: ----
 #   - International telephone traffic (ITU)
 #   - International Meetings/Conferences (UIA)
 #   - International aircraft passengers (ICAO)
@@ -55,13 +61,13 @@ other_sources <- right_join(uia, full_join(phone, icao,
   select(Code, Year, Int_Departures, int_phone_minutes, int_meetings)
 
 
-# join wdi and others:
+### join wdi and others: ----
 data_raw <- full_join(wdi, other_sources,
                       by = c("date" = "Year", "iso3c" = "Code"))
 
 
 
-### Even more valid indicators could be:
+### Even more valid indicators could be: ----
 #   - Exclude internet prior to 2006
 #   - Exclude phone from 2006
 #   - Replace air passengers with international revenue passenger kilometres (ICAO)
