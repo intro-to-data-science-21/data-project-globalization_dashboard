@@ -1,36 +1,57 @@
 # Load packages and data
 library(shiny)
+library(shinydashboard)
 library(pacman)
 library(plotly)
-library(dplyr)
 library(readr)
 library(tidyverse)
 
 p_load(rio)
     #data loading does not work, load from 02_build_dashboard.R
-#KGIdata <- rio::import(file = "data_processed/KGI.Rdata")%>%
-#    mutate(hover = paste0(country, "\nKGI:", KGI))
+KGIdata <- rio::import(file = "data_processed/KGI.Rdata")%>%
+    mutate(hover = paste0(country, "\nKGI:", KGI))
 
 # Define UI ----------------------------------------------------------------
-ui <- fluidPage(
-    titlePanel("A Globalization Dashboard (1990 - 2020)"),
-    # Need to decide on the positions of outputs and widgets
-    fluidRow(
-        column(3,
-               wellPanel(
-                   sliderInput("year", "Year", 1990, 2020, 2020, step = 2, sep = "")),
-               wellPanel(
-                   h4("Include small countries?"),
-                   checkboxInput("small", "Countries with population less than 100.000"), value = FALSE),
-               wellPanel(
-                   h4("Top 10 globalized countries"), tableOutput("ranking"))
-        ),
-        column(9,
-               plotlyOutput("world_map"),
-               wellPanel(textOutput("text")),
-               )
+header <- dashboardHeader(title = "How globalized is the world really?",
+                          titleWidth = 400)
+
+sidebar <- dashboardSidebar(
+    sidebarMenu(
+        menuItem("About", tabName = "model", icon = icon("book"),
+                 textOutput("text")),
+        menuItem("Controls", tabName = "model", icon = icon("mouse"),
+                 sliderInput("year", "Select year", 1990, 2020, 1990, step = 1, sep = ""),
+                 checkboxInput("small", "Include small countries? (pop. < 100.000)", value = FALSE)),
+        menuItem("Link to code", href = "https://youtu.be/dQw4w9WgXcQ", icon = icon("code"))
         )
     )
+
+body <- dashboardBody(
+    fluidRow(
+       column(3,
+              wellPanel(
+                  h4("Most globalized countries"), tableOutput("ranking"))),
+       column(9,
+              plotlyOutput("world_map"))
+    )
+)
+    
+ui <- dashboardPage(header, 
+                    sidebar, 
+                    body
+)
+# Old code
+#fluidRow(
+ #   column(3,
+  #         wellPanel(
+   #            sliderInput("year", "Year", 1990, 2020, 2020, step = , sep = "")),
+    #       wellPanel(
+     #          h4("Include small countries?"),
+      #         checkboxInput("small", "Countries with population less than 100.000"), value = FALSE),
+       #    wellPanel(
+        #       h4("Top 10 globalized countries"), tableOutput("ranking"))
+#    ),
+ #   column(9,plotlyOutput("world_map")))
 
 # Define Server -----------------------------------------------------------
 server <- function(input, output, session) {
@@ -40,7 +61,12 @@ server <- function(input, output, session) {
     
     # Need to write correct text
     output$text <- renderText({ 
-        "Text to very briefly explain what the index is and how it works." 
+        "The Kessler Globality Index..." 
+    })
+    
+    observeEvent(input$year,{
+        updateSliderInput(session, "year")
+        updateCheckboxInput(session, "small")
     })
     
     # Need to implement filters for year and small countries
