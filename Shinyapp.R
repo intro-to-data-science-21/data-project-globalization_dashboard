@@ -1,15 +1,10 @@
 # Load packages and data
-library(shiny)
-library(shinydashboard)
 library(pacman)
-library(plotly)
-library(readr)
-library(tidyverse)
-
-p_load(rio)
-    #data loading does not work, load from 02_build_dashboard.R
-KGIdata <- rio::import(file = "data_processed/KGI.Rdata")%>%
-    mutate(hover = paste0(country, "\nKGI:", KGI))
+p_load(rio, shiny, shinydashboard, plotly, readr, tidyverse)
+    
+#data loading does not work, load from 02_build_dashboard.R
+KGIdata_original <- rio::import(file = "data_processed/KGI.Rdata") %>%
+    mutate(hover = paste0(country, "\nKGI: ", KGI, "\nIndicators available: ", n_vars, "/7"))
 
 # Define UI ----------------------------------------------------------------
 header <- dashboardHeader(title = "How globalized is the world really?",
@@ -21,7 +16,8 @@ sidebar <- dashboardSidebar(
                  textOutput("text")),
         menuItem("Controls", tabName = "model", icon = icon("mouse"),
                  sliderInput("year", "Select year", 1990, 2020, 1990, step = 1, sep = ""),
-                 checkboxInput("small", "Include small countries? (pop. < 100.000)", value = FALSE)),
+                 checkboxInput("small_include", "Include small countries? (pop. < 1 Mio.)", value = FALSE),
+                 sliderInput("min_vars", "Min. Number of Indicators", 1, 7, 3)),
         menuItem("Link to code", href = "https://youtu.be/dQw4w9WgXcQ", icon = icon("code"))
         )
     )
@@ -40,7 +36,7 @@ ui <- dashboardPage(header,
                     sidebar, 
                     body
 )
-# Old code
+# Old code ----
 #fluidRow(
  #   column(3,
   #         wellPanel(
@@ -56,28 +52,48 @@ ui <- dashboardPage(header,
 # Define Server -----------------------------------------------------------
 server <- function(input, output, session) {
     
-    #small_filter <- reactive(filter(KGIdata$small=TRUE))
-    #year_filter <- reactive(filter(year==input$year))
-    
-    # Need to write correct text
+  # We have to create temp vars here to filter
+  filtered_data <- reactive({
+    year <- input$year
+    small_include <- input$small_include
+    min_vars <- input$min_vars
+  
+  # filtering
+    KGIdata_filtered <- KGIdata_original %>% 
+      filter(ifelse(small_include == T,
+                      !is.na(small), 
+                      small == F),
+             date == year,
+             n_vars >= min_vars) %>% 
+      # just to make sure:
+      as.data.frame() %>% 
+      arrange(desc(KGI))
+    KGIdata_filtered
+    })  
+  # This doesn't change, right? so no need to have it inside server function
+      # Need to write correct text
     output$text <- renderText({ 
         "The Kessler Globality Index..." 
     })
     
+ # Do we have to use the temp vars here too?
     observeEvent(input$year,{
         updateSliderInput(session, "year")
-        updateCheckboxInput(session, "small")
+        updateCheckboxInput(session, "small_include")
+        updateSliderInput(session, "min_vars")  
     })
     
     # Need to implement filters for year and small countries
     output$ranking <- renderTable({
-        KGIdata %>% 
+        filtered_data() %>% 
             select(country, KGI) %>%
             arrange(desc(KGI)) %>% 
             head(10)
     })
+      # could include lowest 10 as well? or make tabel scrollable
     
-    # Need to implement filter for year and small countries
+    # Could also quite easily construct the updated index from Schröder 2020 as alternative to switch between
+    
     # Need to substitute the year slider below with a proper widget
     # Need to fix the positioning of the map (larger and less movable)
     output$world_map <- renderPlotly({
@@ -85,8 +101,8 @@ server <- function(input, output, session) {
         graph_properties <- list(
         scope = 'world',
         showland = TRUE,
-        landcolor = toRGB("white"),
-        color = toRGB("white"))
+        landcolor = toRGB("lightgrey"),
+        color = toRGB("lightgrey"))
         
         font = list(
         family = "DM Sans",
@@ -95,7 +111,7 @@ server <- function(input, output, session) {
         
         label = list(
         bgcolor = "#EEEEEE",
-        bordercolor = "transparent",
+        bordercolor = "gray",
         font = font)
         
         borders_layout <- list(color = toRGB("grey"), width = 0.5)
@@ -105,13 +121,13 @@ server <- function(input, output, session) {
         showcoastlines = FALSE,
         projection = list(type = 'Mercator'))
         # Build actual plotly map
-        world_map = plot_geo(KGIdata, 
+        world_map = plot_geo(filtered_data(), 
                          locationmode = "world", 
                          frame = ~date) %>%
             add_trace(locations = ~iso3c,
                   z = ~KGI,
                   zmin = 0,
-                  zmax = max(KGIdata$KGI),
+                  zmax = 100,
                   color = ~KGI,
                   colorscale = "Paired",
                   text = ~hover,
@@ -124,4 +140,5 @@ server <- function(input, output, session) {
 }
 
 # Run the application 
-shinyApp(ui = ui, server = server)
+shinyApp(ui = ui, 
+         server = server)
