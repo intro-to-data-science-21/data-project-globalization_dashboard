@@ -36,18 +36,6 @@ ui <- dashboardPage(header,
                     sidebar, 
                     body
 )
-# Old code ----
-#fluidRow(
- #   column(3,
-  #         wellPanel(
-   #            sliderInput("year", "Year", 1990, 2020, 2020, step = , sep = "")),
-    #       wellPanel(
-     #          h4("Include small countries?"),
-      #         checkboxInput("small", "Countries with population less than 100.000"), value = FALSE),
-       #    wellPanel(
-        #       h4("Top 10 globalized countries"), tableOutput("ranking"))
-#    ),
- #   column(9,plotlyOutput("world_map")))
 
 # Define Server -----------------------------------------------------------
 server <- function(input, output, session) {
@@ -83,7 +71,6 @@ server <- function(input, output, session) {
         updateSliderInput(session, "min_vars")  
     })
     
-    # Need to implement filters for year and small countries
     output$ranking <- renderTable({
         filtered_data() %>% 
             select(country, KGI) %>%
@@ -94,8 +81,6 @@ server <- function(input, output, session) {
     
     # Could also quite easily construct the updated index from Schröder 2020 as alternative to switch between
     
-    # Need to substitute the year slider below with a proper widget
-    # Need to fix the positioning of the map (larger and less movable)
     output$world_map <- renderPlotly({
         # Define plotly map's properties, font, labels, and layout
         graph_properties <- list(
@@ -118,7 +103,7 @@ server <- function(input, output, session) {
         
         map_layout <- list(
         showframe = FALSE,
-        showcoastlines = FALSE,
+        showcoastlines = TRUE,
         projection = list(type = 'Mercator'))
         # Build actual plotly map
         world_map = plot_geo(filtered_data(), 
@@ -129,7 +114,7 @@ server <- function(input, output, session) {
                   zmin = 0,
                   zmax = 100,
                   color = ~KGI,
-                  colorscale = "Paired",
+                  colorscale = "Inferno",
                   text = ~hover,
                   hoverinfo = 'text') %>%
             layout(geo = map_layout,
