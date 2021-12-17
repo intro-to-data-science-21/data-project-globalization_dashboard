@@ -109,15 +109,13 @@ index <- data_normalized %>%
                      Int_Departures, 
                      int_phone_minutes, 
                      int_meetings),
-                    na.rm = T))
-  bind_cols(index, 
-            data_normalized %>% 
-              select(internet:int_meetings) %>% 
-              mutate(N_vars = rowSums(!is.na(.))) %>% 
-              select(N_vars))
+                    na.rm = T)) %>% 
+  bind_cols(., apply(data_normalized %>% 
+              select(internet:int_meetings), 1, function(x) sum(!is.na(x)))) %>% 
+  rename(n_vars = ...15)
 
 ### ToDo: exclude where too few indicators ----
-
+# ...as option in dashboard
 
 ### save processed data ----
 dir.create("data_processed")
