@@ -2,7 +2,6 @@
 library(pacman)
 p_load(rio, shiny, shinydashboard, plotly, readr, tidyverse)
     
-#data loading does not work, load from 02_build_dashboard.R
 KGIdata_original <- rio::import(file = "data_processed/KGI.Rdata") %>%
     mutate(hover = paste0(country, "\nKGI: ", KGI, "\nIndicators available: ", n_vars, "/7"))
 
@@ -17,8 +16,17 @@ sidebar <- dashboardSidebar(
         menuItem("Controls", tabName = "model", icon = icon("mouse"),
                  sliderInput("year", "Select year", 1990, 2020, 1990, step = 1, sep = ""),
                  checkboxInput("small_include", "Include small countries? (pop. < 1 Mio.)", value = FALSE),
-                 sliderInput("min_vars", "Min. Number of Indicators", 1, 7, 3)),
-        menuItem("Link to code", href = "https://youtu.be/dQw4w9WgXcQ", icon = icon("code"))
+                 sliderInput("min_vars", "Min. Number of Indicators", 1, 7, 3),
+                 tags$small(
+                   "Note: 1. Since all indicators are computed on a per capita basis,",
+                   " including small countries may produce an uniformative ranking.",
+                   " 2. Data for 2020 should tread lightly due to the effects of the",
+                   " COVID-19 pandemic.",
+                   " 3. The KGI is computed for a country if there are at least 3 ",
+                   " indicators available for it.")
+                 ),
+        menuItem("Link to code", href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
+                 icon = icon("code"))
         )
     )
 
@@ -32,7 +40,8 @@ body <- dashboardBody(
     )
 )
     
-ui <- dashboardPage(header, 
+ui <- dashboardPage(skin = "red",
+                    header, 
                     sidebar, 
                     body
 )
@@ -61,7 +70,16 @@ server <- function(input, output, session) {
   # This doesn't change, right? so no need to have it inside server function
       # Need to write correct text
     output$text <- renderText({ 
-        "The Kessler Globality Index..." 
+        "The Kessler Globality Index (KGI) is a clear and effective measure of 
+      globalization (see Kessler 2016; Schröder 2020). It comprises seven 
+      indicators (per capita):\n
+      -volume of foreign trade,\n
+      -foreign direct investments (sum of inflows and outflows),\n
+      -international meetings,\n 
+      -international arrivals and departures at commercial airports,\n
+      -international tourist arrivals and departures,\n
+      -international incoming and outgoing telephone traffic in minutes,\n
+      -estimated number of people with Internet access." 
     })
     
  # Do we have to use the temp vars here too?
