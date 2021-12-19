@@ -6,7 +6,7 @@ KGIdata_original <- rio::import(file = "data_processed/KGI.Rdata")
 
 # Define UI ----------------------------------------------------------------
 header <- dashboardHeader(title = "How globalized is the world?",
-                          titleWidth = 400)
+                          titleWidth = "17.5%")
 
 sidebar <- dashboardSidebar(
     sidebarMenu(
@@ -31,10 +31,10 @@ sidebar <- dashboardSidebar(
                                          newtab = F)),
                  
                  menuItem("Contributors", 
-                             menuSubItem(text = "Francesco Danovi, Università Bocconi/Hertie School",
+                             menuSubItem(text = "Francesco Danovi, Università Bocconi",
                                          href = "https://it.linkedin.com/in/francesco-danovi-189152186",
                                          newtab = F),
-                             menuSubItem(text = "Federico Mammana, Università Bocconi/Hertie School",
+                             menuSubItem(text = "Federico Mammana, Università Bocconi",
                                          href = "https://www.linkedin.com/in/federico-mammana/",
                                          newtab = F),
                              menuSubItem(text = "Milan Schröder, Hertie School",
@@ -73,7 +73,7 @@ sidebar <- dashboardSidebar(
                           newtab = F)),
     collapsed = F
     ),
-  width = "10%"
+  width = "17.5%"
 )
 
 body <- dashboardBody(
@@ -83,6 +83,23 @@ body <- dashboardBody(
                   h4("Most globalized countries"), tableOutput("ranking"))),
        column(9,
               plotlyOutput("world_map"))),
+    fluidRow(
+      column(12,
+             span(align = "right", 
+                  "The Kessler Globality Index (KGI) is a clear and effective measure of 
+            globalization (see Kessler 2016; Schröder 2020). It comprises seven 
+            indicators (per capita):\n
+            -volume of foreign trade,\n
+            -foreign direct investments (sum of inflows and outflows),\n
+            -international meetings,\n 
+            -international arrivals and departures at commercial airports,\n
+            -international tourist arrivals and departures,\n
+            -international incoming and outgoing telephone traffic in minutes,\n
+            -estimated number of people with Internet access."))),
+    fluidRow(
+      column(12,
+             span("For detailled information see our methods",
+                  align = "right"))),
     fluidRow(
       column(12,
              span("Note: Since all indicators are computed on a per capita basis, including small countries may produce an uniformative ranking.",
@@ -131,21 +148,6 @@ server <- function(input, output, session) {
       arrange(desc(KGI))
     KGIdata_filtered
     })  
-  # This doesn't change, right? so no need to have it inside server function
-      # Need to write correct text
-    output$text <- renderText({ 
-        "The Kessler Globality Index (KGI) is a clear and effective measure of 
-      globalization (see Kessler 2016; Schröder 2020). It comprises seven 
-      indicators (per capita):\n
-      -volume of foreign trade,\n
-      -foreign direct investments (sum of inflows and outflows),\n
-      -international meetings,\n 
-      -international arrivals and departures at commercial airports,\n
-      -international tourist arrivals and departures,\n
-      -international incoming and outgoing telephone traffic in minutes,\n
-      -estimated number of people with Internet access." 
-    })
-    
 
     observeEvent(input$year,{
         updateSliderInput(session, "year")
