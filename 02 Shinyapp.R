@@ -56,8 +56,12 @@ sidebar <- dashboardSidebar(
                              c("Kessler (2016)" = "KGI_original",
                                "Schröder (2020)" = "KGI_new"))),
         
-        menuItem("Link to code", 
+        menuItem("Link to Code", 
                  href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
+                 icon = icon("code"),
+                 newtab = F),
+        menuItem("Download Data", 
+                 href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/blob/main/data_processed/KGI.csv?raw=true",
                  icon = icon("code"),
                  newtab = F),
     collapsed = F
