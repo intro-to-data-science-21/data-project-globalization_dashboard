@@ -6,7 +6,7 @@ KGIdata_original <- rio::import(file = "data_processed/KGI.Rdata")
 
 # Define UI ----------------------------------------------------------------
 header <- dashboardHeader(title = "How globalized is the world? The Kessler Globality Index",
-                          titleWidth = "500")
+                          titleWidth = 750)
 
 sidebar <- dashboardSidebar(
     sidebarMenu(
