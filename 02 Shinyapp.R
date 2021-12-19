@@ -15,7 +15,7 @@ sidebar <- dashboardSidebar(
                  icon = icon("book"),
                  
                  menuItem("Method", 
-                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/blob/main/README.md",
+                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/blob/main/README.md#kessler-globality-index-kgi",
                            newtab = F),
                  
                  menuItem("Full Report", 
