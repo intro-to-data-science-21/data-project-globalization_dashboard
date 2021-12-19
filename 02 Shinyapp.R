@@ -2,8 +2,7 @@
 library(pacman)
 p_load(rio, shiny, shinydashboard, plotly, readr, tidyverse)
     
-KGIdata_original <- rio::import(file = "data_processed/KGI.Rdata") %>%
-    mutate(hover = paste0(country, "\nKGI: ", KGI_original, "\nIndicators available: ", n_vars_original, "/7"))
+KGIdata_original <- rio::import(file = "data_processed/KGI.Rdata")
 
 # Define UI ----------------------------------------------------------------
 header <- dashboardHeader(title = "How globalized is the world?",
@@ -14,42 +13,57 @@ sidebar <- dashboardSidebar(
         menuItem("About", 
                  tabName = "model", 
                  icon = icon("book"),
-                 menuSubItem("Method", 
-                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
-                           newtab = T),
-                 menuSubItem("Sources", 
-                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
-                           newtab = T),
-                 menuSubItem("Contributors",
-                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
-                           newtab = T)),
-         menuItem("Controls", tabName = "model", icon = icon("mouse"),
-                 sliderInput("year", "Select year", 1990, 2020, 2017, step = 1, sep = ""),
+                 
+                 menuItem("Method", 
+                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/blob/main/README.md",
+                           newtab = F),
+                 
+                 menuItem("Full Report", 
+                          href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/blob/main/README.md",
+                          newtab = F),
+                 
+                 menuItem("Sources", 
+                             menuSubItem(text = "Kessler (2016)", 
+                                         href = "https://link.springer.com/book/10.1007/978-3-658-02388-1",
+                                         newtab = F),
+                             menuSubItem(text = "Schröder (2020)", 
+                                         href = "https://hertieschool-my.sharepoint.com/personal/204856_hertie-school_org/_layouts/15/onedrive.aspx?id=%2Fpersonal%2F204856%5Fhertie%2Dschool%5Forg%2FDocuments%2FJGU%2FPolitikwissenschaft%2FBachelorarbeit%2FBachelorarbeit%20Milan%20Schr%C3%B6der%2FGerechte%20Globalisierung%20%2D%20Zur%20Messung%20von%20Globalisierungsprozessen%20und%20ihrem%20Einfluss%20auf%20die%20Verteilungsgerechtigkeit%2Epdf&parent=%2Fpersonal%2F204856%5Fhertie%2Dschool%5Forg%2FDocuments%2FJGU%2FPolitikwissenschaft%2FBachelorarbeit%2FBachelorarbeit%20Milan%20Schr%C3%B6der",
+                                         newtab = F)),
+                 
+                 menuItem("Contributors", 
+                             menuSubItem(text = "Francesco Danovi, Università Bocconi/Hertie School",
+                                         href = "https://it.linkedin.com/in/francesco-danovi-189152186",
+                                         newtab = F),
+                             menuSubItem(text = "Federico Mammana, Università Bocconi/Hertie School",
+                                         href = "https://www.linkedin.com/in/federico-mammana/",
+                                         newtab = F),
+                             menuSubItem(text = "Milan Schröder, Hertie School",
+                                         href = "https://www.linkedin.com/in/milan-schroeder/",
+                                         newtab = F))),
+        
+         menuItem("Controls", tabName = "model", icon = icon("mouse"), startExpanded = T,
+                 sliderInput("year", "Select year", 1990, 2020, 2017, step = 1, sep = "", animate = T),
                  checkboxInput("small_include", 
                                "Include small countries? (pop. < 1 Mio.)", 
                                value = FALSE),
+                 
                  sliderInput("min_vars", 
                              "Min. Number of Indicators", 
                              1, 7, 3),
+                 
                  selectInput("version",
                              "KGI version:",
                              c("Kessler (2016)" = "KGI_original",
-                               "Schröder (2020)" = "KGI_new")),
-           # place this somewhere else:
-                 tags$small(
-                   "Note: 1. Since all indicators are computed on a per capita basis,",
-                   " including small countries may produce an uniformative ranking.",
-                   " 2. Data for 2020 should tread lightly due to the effects of the",
-                   " COVID-19 pandemic."),
-                  startExpanded = T
-                 ),
+                               "Schröder (2020)" = "KGI_new"))),
+        
         menuItem("Link to code", 
                  href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
                  icon = icon("code"),
-                 newtab = T)
-        ),
+                 newtab = F),
     collapsed = F
-    )
+    ),
+  width = 400
+)
 
 body <- dashboardBody(
     fluidRow(
@@ -57,11 +71,18 @@ body <- dashboardBody(
               wellPanel(
                   h4("Most globalized countries"), tableOutput("ranking"))),
        column(9,
-              plotlyOutput("world_map"))
+              plotlyOutput("world_map"))),
+    fluidRow(
+      column(12,
+             span("Note: Since all indicators are computed on a per capita basis, including small countries may produce an uniformative ranking.",
+                  align = "right"))),
+    fluidRow(
+      column(12,
+             span("Data for 2020 should tread lightly due to the effects of the COVID-19 pandemic.",
+                  align = "right")))
     )
-)
     
-ui <- dashboardPage(skin = "blue",
+ui <- dashboardPage(skin = "red",
                     header, 
                     sidebar, 
                     body
@@ -84,7 +105,11 @@ server <- function(input, output, session) {
                            KGI_new),
              n_vars = ifelse(version == "KGI_original",
                              n_vars_original,
-                             n_vars_new)) %>% 
+                             n_vars_new),
+             indicators_max = ifelse(version == "KGI_original",
+                                     7,
+                                     6),
+             hover = paste0(country, "\nKGI: ", KGI, "\nIndicators available: ", n_vars, "/", indicators_max)) %>%
       filter(ifelse(small_include == T,
                       !is.na(small), 
                       small == F),
@@ -156,17 +181,17 @@ server <- function(input, output, session) {
                          locationmode = "world", 
                          frame = ~date) %>%
             add_trace(locations = ~iso3c,
-                  z = ~KGI,
+                  z = ~ KGI,
                   zmin = 0,
                   zmax = 100,
-                  color = ~KGI,
+                  color = ~ KGI,
                   colorscale = "Inferno",
-                  text = ~hover,
+                  text = ~ hover,
                   hoverinfo = 'text') %>%
             layout(geo = map_layout,
                    font = list(family = "DM Sans")) %>%
-            style(hoverlabel=label) %>%
-            config(displayModeBar=FALSE)
+            style(hoverlabel = label) %>%
+            config(displayModeBar = FALSE)
     })
 }
 
