@@ -1,13 +1,27 @@
 source("00_load_data.R")
-p_load(tidyverse, magrittr, stats, magrittr)
+p_load(tidyverse, 
+       magrittr, 
+       stats, 
+       magrittr)
 options(scipen = 999)
 
 ### normalize data:
 
 # by population:
 data_pc <- data_raw %>% 
-  select(country, iso3c, date, area, pop, internet, everything(), -iso2c) %>% 
-  mutate(across(import:int_meetings, ~ .x / pop))
+  select(country, 
+         iso3c, 
+         date, 
+         area, 
+         pop, 
+         import,
+         int_rpk:comtech,
+         everything(),
+         -iso2c) %>% 
+  mutate(across(import:int_meetings, 
+                ~ .x / pop)) %>% 
+  filter(!is.na(iso3c) && !is.na(country)) # excluding rows with no information
+  
 
 
 
@@ -17,11 +31,17 @@ data_pc <- data_raw %>%
 data_pc %<>% 
   mutate(small = if_else(pop < 1000000 | area < 3000,
                          T,
-                         F))
+                         F),
+# There are some NAs for variable small:
+  # NAs <- filter(data_pc, is.na(small))
+  # some years for Kosovo, South Sudan, Eritrea, and Kuwait, none of them being a small state according to the definition
+        small = ifelse(is.na(small),
+                F,
+                small))
 
 # get long df:
 data_pc_long <- data_pc %>% 
-  pivot_longer(cols = internet:int_meetings, 
+  pivot_longer(cols = import:int_meetings, 
                names_to = "variable", 
                values_to = "value")
 
@@ -30,7 +50,7 @@ data_pc_long <- data_pc %>%
 normal_range <- data_pc %>% 
   # for now, we use all years. This is to allow to adapt code later to avoid biases induced by skewed patterns of data availability:
   filter(., between(date, 1990, 2020)) %>% 
-  select(internet:int_meetings)
+  select(import:int_meetings)
 
 distribution_step1 <- as.data.frame(apply(normal_range, 2, summary)) %>% 
   t() %>% 
@@ -76,7 +96,7 @@ data_normalized_long <- data_pc_long %>%
                                        TRUE ~ normalized))
 
 
-indicators <- c("internet", "fdi", "trade", "tourism", "Int_Departures", "int_phone_minutes", "int_meetings")
+indicators <- c("internet", "fdi", "trade", "tourism", "Int_Departures", "int_phone_minutes", "int_meetings", "comtech", "int_rpk", "trade_g_s_pi")
 data_normalized <- data_pc %>% 
   select(country:pop, small)
 
@@ -93,7 +113,10 @@ data_normalized %<>% rename("internet" = normalized...7,
                             "tourism" = normalized...10, 
                             "Int_Departures" = normalized...11, 
                             "int_phone_minutes" = normalized...12, 
-                            "int_meetings" = normalized...13)
+                            "int_meetings" = normalized...13,
+                            "comtech" = normalized...14, 
+                            "int_rpk" = normalized...15, 
+                            "trade_g_s_pi" = normalized...16)
 
 ### Combining to index ----
 
@@ -106,16 +129,28 @@ index <- data_normalized %>%
                      fdi, 
                      trade, 
                      tourism, 
-                     Int_Departures, 
+                     int_rpk, 
                      int_phone_minutes, 
                      int_meetings),
-                    na.rm = T)) %>% 
-  bind_cols(., apply(data_normalized %>% 
-              select(internet:int_meetings), 1, function(x) sum(!is.na(x)))) %>% 
-  rename(n_vars = ...15)
-
-### ToDo: exclude where too few indicators ----
-# ...as option in dashboard
+                    na.rm = T),
+         KGI_new = mean(c(comtech, 
+                          fdi, 
+                          trade_g_s_pi, 
+                          tourism,
+                          int_rpk,
+                          int_meetings),
+                        na.rm = T)) %>% 
+  bind_cols(., 
+            apply(data_normalized %>% 
+              select(internet:int_meetings), 
+              1, 
+              function(x) sum(!is.na(x))), 
+            apply(data_normalized %>% 
+              select(fdi, tourism, int_meetings:trade_g_s_pi), 
+                     1, 
+                     function(x) sum(!is.na(x)))) %>% 
+  rename(n_vars = ...19,
+         n_vars_new = ...20)
 
 ### save processed data ----
 dir.create("data_processed")

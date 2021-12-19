@@ -1,5 +1,5 @@
 library(pacman)
-p_load(wbstats, rio, tidyverse)
+p_load(wbstats, rio, tidyverse, magrittr)
 
 
 ### get data from WDI: ----
@@ -63,13 +63,61 @@ other_sources <- right_join(uia, full_join(phone, icao,
 
 ### join wdi and others: ----
 data_raw <- full_join(wdi, other_sources,
-                      by = c("date" = "Year", "iso3c" = "Code"))
+                      by = c("date" = "Year", 
+                             "iso3c" = "Code"))
 
 
 
-### Even more valid indicators could be: ----
-#   - Exclude internet prior to 2006
-#   - Exclude phone from 2006
+### Even more valid indicators (see Schröder 2020): ----
+
 #   - Replace air passengers with international revenue passenger kilometres (ICAO)
-#   - Extend Trade to primary income (WDI)
+RPK <- rio::import("data/ICAO_RPK.xlsx", 
+                   which = "Int. RPK clean", 
+                   na.strings = c("NA", "..")) %>% 
+  pivot_longer(., cols = `1990`:`2017`,
+               names_to = "date", 
+               values_to = "int_rpk",
+               names_transform = list(date = as.integer))
+
+data_raw %<>% left_join(., RPK,
+                        by = c("iso3c" = "Code", "date"))
+
 #   - Replace number of internet users with internationally transferred bandwidth (ITU)
+international_internet <- rio::import("data/ITU.xlsx", 
+                                      which = "int. IT bandwidth", 
+                                      na.strings = c("NA", "..")) %>% 
+  pivot_longer(., cols = `1990`:`2017`,
+               names_to = "date", 
+               values_to = "int_mbits",
+               names_transform = list(date = as.integer)) %>% 
+  select(-`1988`, -`1989`)
+
+data_raw %<>% left_join(., international_internet,
+                        by = c("country" = "Country", "date"))
+
+#   - Extend Trade in goods & services with primary income (WDI)
+data_raw <- wbstats::wb_data(indicator = c(
+                 import_g_s_pi = "BM.GSR.TOTL.CD",
+                 export_g_s_pi = "BX.GSR.TOTL.CD"),
+                 start_date = from, end_date = to, 
+                 return_wide = T) %>% 
+  select(-iso2c, -country) %>% 
+  rowwise() %>% 
+    # if only in OR out is not reported, the other is assumed to be neglectable (see Schröder 2020)
+  mutate(trade_g_s_pi = ifelse(is.na(import_g_s_pi) && is.na(export_g_s_pi),
+                        NA,
+                        sum(import_g_s_pi, export_g_s_pi, na.rm = T))) %>% 
+  right_join(., data_raw,
+             by = c("iso3c", "date"))
+
+
+#   - create communication technology indicator reflecting technological change relevant for globalization:
+#     - until 2006: phone traffic correlates highly with all other globalization indicators while internet does not
+#     - from 2006: other way round, hence include:
+#       - telephone traffic prior to 2006
+#       - internet traffic from 2006
+data_raw %<>% mutate(comtech = ifelse(date < 2006,
+                                      int_phone_minutes,
+                                      int_mbits))
+
+  # however, coverage (esp. in terms of years) are not that good for some indicators
