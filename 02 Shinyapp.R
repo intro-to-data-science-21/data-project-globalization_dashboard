@@ -5,8 +5,8 @@ p_load(rio, shiny, shinydashboard, plotly, readr, tidyverse)
 KGIdata_original <- rio::import(file = "data_processed/KGI.Rdata")
 
 # Define UI ----------------------------------------------------------------
-header <- dashboardHeader(title = "How globalized is the world?",
-                          titleWidth = "17.5%")
+header <- dashboardHeader(title = "How globalized is the world? The Kessler Globality Index",
+                          titleWidth = "500")
 
 sidebar <- dashboardSidebar(
     sidebarMenu(
@@ -73,7 +73,7 @@ sidebar <- dashboardSidebar(
                           newtab = F)),
     collapsed = F
     ),
-  width = "17.5%"
+  width = 300
 )
 
 body <- dashboardBody(
@@ -98,7 +98,7 @@ body <- dashboardBody(
             -estimated number of people with Internet access."))),
     fluidRow(
       column(12,
-             span("For detailled information see our methods",
+             span("For detailled information consult our methods.",
                   align = "right"))),
     fluidRow(
       column(12,
