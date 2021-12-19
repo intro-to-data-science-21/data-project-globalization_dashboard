@@ -125,14 +125,14 @@ data_normalized %<>% rename("internet" = normalized...7,
 
 index <- data_normalized %>% 
   rowwise() %>% 
-  mutate(KGI = mean(c(internet, 
-                     fdi, 
-                     trade, 
-                     tourism, 
-                     int_rpk, 
-                     int_phone_minutes, 
-                     int_meetings),
-                    na.rm = T),
+  mutate(KGI_original = mean(c(internet, 
+                               fdi, 
+                               trade, 
+                               tourism, 
+                               int_rpk, 
+                               int_phone_minutes, 
+                               int_meetings),
+                              na.rm = T),
          KGI_new = mean(c(comtech, 
                           fdi, 
                           trade_g_s_pi, 
@@ -149,7 +149,7 @@ index <- data_normalized %>%
               select(fdi, tourism, int_meetings:trade_g_s_pi), 
                      1, 
                      function(x) sum(!is.na(x)))) %>% 
-  rename(n_vars = ...19,
+  rename(n_vars_original = ...19,
          n_vars_new = ...20)
 
 ### save processed data ----

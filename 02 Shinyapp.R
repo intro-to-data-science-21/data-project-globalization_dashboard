@@ -3,31 +3,52 @@ library(pacman)
 p_load(rio, shiny, shinydashboard, plotly, readr, tidyverse)
     
 KGIdata_original <- rio::import(file = "data_processed/KGI.Rdata") %>%
-    mutate(hover = paste0(country, "\nKGI: ", KGI, "\nIndicators available: ", n_vars, "/7"))
+    mutate(hover = paste0(country, "\nKGI: ", KGI_original, "\nIndicators available: ", n_vars_original, "/7"))
 
 # Define UI ----------------------------------------------------------------
-header <- dashboardHeader(title = "How globalized is the world really?",
+header <- dashboardHeader(title = "How globalized is the world?",
                           titleWidth = 400)
 
 sidebar <- dashboardSidebar(
     sidebarMenu(
-        menuItem("About", tabName = "model", icon = icon("book"),
-                 textOutput("text")),
-        menuItem("Controls", tabName = "model", icon = icon("mouse"),
-                 sliderInput("year", "Select year", 1990, 2020, 1990, step = 1, sep = ""),
-                 checkboxInput("small_include", "Include small countries? (pop. < 1 Mio.)", value = FALSE),
-                 sliderInput("min_vars", "Min. Number of Indicators", 1, 7, 3),
+        menuItem("About", 
+                 tabName = "model", 
+                 icon = icon("book"),
+                 menuSubItem("Method", 
+                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
+                           newtab = T),
+                 menuSubItem("Sources", 
+                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
+                           newtab = T),
+                 menuSubItem("Contributors",
+                           href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
+                           newtab = T)),
+         menuItem("Controls", tabName = "model", icon = icon("mouse"),
+                 sliderInput("year", "Select year", 1990, 2020, 2017, step = 1, sep = ""),
+                 checkboxInput("small_include", 
+                               "Include small countries? (pop. < 1 Mio.)", 
+                               value = FALSE),
+                 sliderInput("min_vars", 
+                             "Min. Number of Indicators", 
+                             1, 7, 3),
+                 selectInput("version",
+                             "KGI version:",
+                             c("Kessler (2016)" = "KGI_original",
+                               "Schröder (2020)" = "KGI_new")),
+           # place this somewhere else:
                  tags$small(
                    "Note: 1. Since all indicators are computed on a per capita basis,",
                    " including small countries may produce an uniformative ranking.",
                    " 2. Data for 2020 should tread lightly due to the effects of the",
-                   " COVID-19 pandemic.",
-                   " 3. The KGI is computed for a country if there are at least 3 ",
-                   " indicators available for it.")
+                   " COVID-19 pandemic."),
+                  startExpanded = T
                  ),
-        menuItem("Link to code", href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
-                 icon = icon("code"))
-        )
+        menuItem("Link to code", 
+                 href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard",
+                 icon = icon("code"),
+                 newtab = T)
+        ),
+    collapsed = F
     )
 
 body <- dashboardBody(
@@ -54,9 +75,16 @@ server <- function(input, output, session) {
     year <- input$year
     small_include <- input$small_include
     min_vars <- input$min_vars
+    version <- input$version
   
   # filtering
     KGIdata_filtered <- KGIdata_original %>% 
+      mutate(KGI =  ifelse(version == "KGI_original",
+                           KGI_original,
+                           KGI_new),
+             n_vars = ifelse(version == "KGI_original",
+                             n_vars_original,
+                             n_vars_new)) %>% 
       filter(ifelse(small_include == T,
                       !is.na(small), 
                       small == F),
@@ -82,7 +110,7 @@ server <- function(input, output, session) {
       -estimated number of people with Internet access." 
     })
     
- # Do we have to use the temp vars here too?
+
     observeEvent(input$year,{
         updateSliderInput(session, "year")
         updateCheckboxInput(session, "small_include")
@@ -95,7 +123,7 @@ server <- function(input, output, session) {
             arrange(desc(KGI)) %>% 
             head(10)
     })
-      # could include lowest 10 as well? or make tabel scrollable
+      # could include lowest 10 as well? or make table scrollable
     
     # Could also quite easily construct the updated index from Schröder 2020 as alternative to switch between
     
