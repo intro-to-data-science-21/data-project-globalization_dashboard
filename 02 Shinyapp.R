@@ -61,7 +61,7 @@ body <- dashboardBody(
     )
 )
     
-ui <- dashboardPage(skin = "red",
+ui <- dashboardPage(skin = "blue",
                     header, 
                     sidebar, 
                     body
