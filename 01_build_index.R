@@ -156,3 +156,4 @@ index <- data_normalized %>%
 try(dir.create("data_processed"), silent = T)
 save(index, file = "data_processed/KGI.Rdata")
 rio::export(index, file = "data_processed/KGI.csv")
+rio::export(index, file = "data_processed/KGI.xlsx")

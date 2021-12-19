@@ -61,12 +61,19 @@ sidebar <- dashboardSidebar(
                  icon = icon("code"),
                  newtab = F),
         menuItem("Download Data", 
-                 href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/blob/main/data_processed/KGI.csv?raw=true",
-                 icon = icon("code"),
-                 newtab = F),
+                 icon = icon("save"),
+                 menuItem(".csv", 
+                          href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/raw/main/data_processed/KGI.csv",
+                          newtab = F),
+                 menuItem(".xlsx", 
+                          href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/raw/main/data_processed/KGI.xlsx",
+                          newtab = F),
+                 menuItem(".Rdata", 
+                          href = "https://github.com/intro-to-data-science-21/data-project-globalization_dashboard/raw/main/data_processed/KGI.Rdata",
+                          newtab = F)),
     collapsed = F
     ),
-  width = 400
+  width = "10%"
 )
 
 body <- dashboardBody(
