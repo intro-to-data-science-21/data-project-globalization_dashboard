@@ -153,5 +153,6 @@ index <- data_normalized %>%
          n_vars_new = ...20)
 
 ### save processed data ----
-dir.create("data_processed")
+try(dir.create("data_processed"), silent = T)
 save(index, file = "data_processed/KGI.Rdata")
+save(index, file = "data_processed/KGI.csv")
