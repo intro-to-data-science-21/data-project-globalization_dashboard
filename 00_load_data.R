@@ -69,6 +69,9 @@ data_raw <- full_join(wdi, other_sources,
 
 
 ### Even more valid indicators (see Schröder 2020): ----
+# Note: Some of this data is not publicly available. 
+#   The processed data can be found in folder /data_processed. 
+#   Raw data for replication upon request.
 
 #   - Replace air passengers with international revenue passenger kilometres (ICAO)
 RPK <- rio::import("data/ICAO_RPK.xlsx", 
@@ -112,7 +115,7 @@ data_raw <- wbstats::wb_data(indicator = c(
 
 
 #   - create communication technology indicator reflecting technological change relevant for globalization:
-#     - until 2006: phone traffic correlates highly with all other globalization indicators while internet does not
+#     - until 2005: phone traffic correlates highly with all other globalization indicators while internet does not
 #     - from 2006: other way round, hence include:
 #       - telephone traffic prior to 2006
 #       - internet traffic from 2006
@@ -120,4 +123,4 @@ data_raw %<>% mutate(comtech = ifelse(date < 2006,
                                       int_phone_minutes,
                                       int_mbits))
 
-  # however, coverage (esp. in terms of years) are not that good for some indicators
+  # however, coverage (esp. in terms of years) are not that good for some indicators, hence we offer both indices.

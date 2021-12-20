@@ -80,23 +80,15 @@ body <- dashboardBody(
     fluidRow(
        column(3,
               wellPanel(
-                  h4("Most globalized countries"), tableOutput("ranking"))),
+                  h4("Most globalized countries"), 
+                      tableOutput("ranking"))),
        column(9,
               plotlyOutput("world_map"))),
+
     fluidRow(
-      column(12, 
-             verbatimTextOutput("description"))),
-    fluidRow(
-      column(12, 
-             wellPanel(span("The Kessler Globality Index (KGI) is a clear and effective measure of the level of globalization (see Kessler 2016). 
-                          It comprises seven indicators (per capita):"),
-              tags$ul(
-                tags$li("volume of international trade (WDI)"), 
-                tags$li("foreign direct investments (sum of inflows and outflows, WDI)"), 
-                tags$li("international meetings (UIA)"),
-                tags$li("international arrivals and departures at commercial airports (ICAO)"), 
-                tags$li("international incoming and outgoing telephone traffic in minutes (ITU)"), 
-                tags$li("share of individuals using the internet (ITU)"))))),
+      wellPanel(
+        htmlOutput("description"))),
+    
     fluidRow(
       column(12,
              span("For detailled information consult our methods.",
@@ -120,14 +112,14 @@ ui <- dashboardPage(skin = "red",
 # Define Server -----------------------------------------------------------
 server <- function(input, output, session) {
     
-  # We have to create temp vars here to filter
+  # creating temp vars here to filter:
   filtered_data <- reactive({
     year <- input$year
     small_include <- input$small_include
     min_vars <- input$min_vars
     version <- input$version
   
-  # filtering
+  # filtering data:
     KGIdata_filtered <- KGIdata_original %>% 
       mutate(KGI =  ifelse(version == "KGI_original",
                            KGI_original,
@@ -149,23 +141,16 @@ server <- function(input, output, session) {
       arrange(desc(KGI))
     KGIdata_filtered
     })  
-
-    observeEvent(input$year,{
-        updateSliderInput(session, "year")
-        updateCheckboxInput(session, "small_include")
-        updateSliderInput(session, "min_vars")  
-    })
     
+    # construct Top10 list:
     output$ranking <- renderTable({
         filtered_data() %>% 
             select(country, KGI) %>%
             arrange(desc(KGI)) %>% 
-            head(10)
+        head(10)
     })
-      # could include lowest 10 as well? or make table scrollable
     
-    # Could also quite easily construct the updated index from Schröder 2020 as alternative to switch between
-    
+    # construct worldmap:
     output$world_map <- renderPlotly({
         # Define plotly map's properties, font, labels, and layout
         graph_properties <- list(
@@ -193,8 +178,8 @@ server <- function(input, output, session) {
         # Build actual plotly map
         world_map = plot_geo(filtered_data(), 
                          locationmode = "world", 
-                         frame = ~date) %>%
-            add_trace(locations = ~iso3c,
+                         frame = ~ date) %>%
+            add_trace(locations = ~ iso3c,
                   z = ~ KGI,
                   zmin = 0,
                   zmax = 100,
@@ -207,21 +192,40 @@ server <- function(input, output, session) {
             style(hoverlabel = label) %>%
             config(displayModeBar = FALSE)
     })
-
-# output$description <- renderText({
-#   ifelse(version == "KGI_original",
-#            span("The Kessler Globality Index (KGI) is a clear and effective measure of the level of globalization (see Kessler 2016). 
-#                           It comprises seven indicators (per capita):",
-#                 tags$ul(
-#                   tags$li("volume of international trade (WDI)"), 
-#                   tags$li("foreign direct investments (sum of inflows and outflows, WDI)"), 
-#                   tags$li("international meetings (UIA)"),
-#                   tags$li("international arrivals and departures at commercial airports (ICAO)"), 
-#                   tags$li("international incoming and outgoing telephone traffic in minutes (ITU)"), 
-#                   tags$li("share of individuals using the internet (ITU)"))),
-#   span("lol")
+  
+    # include short description of chosen index:
+    output$description <- renderText({
+      ifelse(input$version == "KGI_original",
+        "<p> The Kessler Globality Index (KGI) is a clear and effective measure of the level of globality, i.e. the level of transboarder interaction between people (see Kessler 2016). 
+          <br> It comprises seven highly intercorrelated, theoretically valid indicators all loading strongly on one common factor: </p>
+            <ul>
+              <li> volume of international trade in goods and services (World Development Indicators)</li>
+              <li> foreign direct investments, inflows and outflows (World Development Indicators)</li>
+              <li> international tourism, arrivals and departures (World Development Indicators)</li>
+              <li> international meetings (Union of International Associations)</li>
+              <li> international arrivals and departures at commercial airports (International Civil Aviation Organization)</li>
+              <li> international incoming and outgoing telephone traffic in minutes (International Telecommunications Union)</li>
+              <li> share of individuals using the internet (International Telecommunications Union)</li>
+            </ul>",
+        
+        "<p> The refined version of the Kessler Globality Index (KGI) is a clear and effective measure of the level of globality, i.e. the level of transboarder interaction between people (see Schröder 2020). 
+          <br> It comprises six highly intercorrelated, theoretically valid indicators all loading strongly on one common factor: </p>
+            <ul>
+              <li> volume of international trade in goods, services, and primary income (World Development Indicators)</li>
+              <li> foreign direct investments, inflows and outflows (World Development Indicators)</li>
+              <li> international tourism, arrivals and departures (World Development Indicators)</li>
+              <li> international meetings (Union of International Associations)</li>
+              <li> internationally operated revenue passenger kilometres (International Civil Aviation Organization)</li>
+              <li> a communication technology indicator, covering the shift in predominant communication tools, i.e.:
+                <ul>
+                  <li>until 2005: international incoming and outgoing telephone traffic in minutes (International Telecommunications Union)</li>
+                  <li>from 2006: international bandwidth usage in Mbit/s (International Telecommunications Union)</li>
+                </ul>
+              </li>
+            </ul>")
+     })
 }
 
-# Run the application 
+# Run the app:
 shinyApp(ui = ui, 
          server = server)
