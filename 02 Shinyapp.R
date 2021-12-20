@@ -84,18 +84,19 @@ body <- dashboardBody(
        column(9,
               plotlyOutput("world_map"))),
     fluidRow(
-      column(12,
-             span(align = "right", 
-                  "The Kessler Globality Index (KGI) is a clear and effective measure of 
-            globalization (see Kessler 2016; Schröder 2020). It comprises seven 
-            indicators (per capita):\n
-            -volume of foreign trade,\n
-            -foreign direct investments (sum of inflows and outflows),\n
-            -international meetings,\n 
-            -international arrivals and departures at commercial airports,\n
-            -international tourist arrivals and departures,\n
-            -international incoming and outgoing telephone traffic in minutes,\n
-            -estimated number of people with Internet access."))),
+      column(12, 
+             verbatimTextOutput("description"))),
+    fluidRow(
+      column(12, 
+             wellPanel(span("The Kessler Globality Index (KGI) is a clear and effective measure of the level of globalization (see Kessler 2016). 
+                          It comprises seven indicators (per capita):"),
+              tags$ul(
+                tags$li("volume of international trade (WDI)"), 
+                tags$li("foreign direct investments (sum of inflows and outflows, WDI)"), 
+                tags$li("international meetings (UIA)"),
+                tags$li("international arrivals and departures at commercial airports (ICAO)"), 
+                tags$li("international incoming and outgoing telephone traffic in minutes (ITU)"), 
+                tags$li("share of individuals using the internet (ITU)"))))),
     fluidRow(
       column(12,
              span("For detailled information consult our methods.",
@@ -108,7 +109,7 @@ body <- dashboardBody(
       column(12,
              span("Data for 2020 should tread lightly due to the effects of the COVID-19 pandemic.",
                   align = "right")))
-    )
+)
     
 ui <- dashboardPage(skin = "red",
                     header, 
@@ -206,6 +207,19 @@ server <- function(input, output, session) {
             style(hoverlabel = label) %>%
             config(displayModeBar = FALSE)
     })
+
+# output$description <- renderText({
+#   ifelse(version == "KGI_original",
+#            span("The Kessler Globality Index (KGI) is a clear and effective measure of the level of globalization (see Kessler 2016). 
+#                           It comprises seven indicators (per capita):",
+#                 tags$ul(
+#                   tags$li("volume of international trade (WDI)"), 
+#                   tags$li("foreign direct investments (sum of inflows and outflows, WDI)"), 
+#                   tags$li("international meetings (UIA)"),
+#                   tags$li("international arrivals and departures at commercial airports (ICAO)"), 
+#                   tags$li("international incoming and outgoing telephone traffic in minutes (ITU)"), 
+#                   tags$li("share of individuals using the internet (ITU)"))),
+#   span("lol")
 }
 
 # Run the application 
