@@ -39,7 +39,7 @@ sidebar <- dashboardSidebar(
                                          href = "https://link.springer.com/book/10.1007/978-3-658-02388-1",
                                          newtab = F),
                              menuSubItem(text = "Schröder (2020)", 
-                                         href = "https://hertieschool-my.sharepoint.com/personal/204856_hertie-school_org/_layouts/15/onedrive.aspx?id=%2Fpersonal%2F204856%5Fhertie%2Dschool%5Forg%2FDocuments%2FJGU%2FPolitikwissenschaft%2FBachelorarbeit%2FBachelorarbeit%20Milan%20Schr%C3%B6der%2FGerechte%20Globalisierung%20%2D%20Zur%20Messung%20von%20Globalisierungsprozessen%20und%20ihrem%20Einfluss%20auf%20die%20Verteilungsgerechtigkeit%2Epdf&parent=%2Fpersonal%2F204856%5Fhertie%2Dschool%5Forg%2FDocuments%2FJGU%2FPolitikwissenschaft%2FBachelorarbeit%2FBachelorarbeit%20Milan%20Schr%C3%B6der",
+                                         href = "https://hertieschool-my.sharepoint.com/:b:/g/personal/204856_hertie-school_org/EWp8tWUAvD5IjOmgbVoQjd8BaXL1bQNd_nuxH0u5ftVhoQ",
                                          newtab = F)),
                  
                  menuItem("Contributors", 
