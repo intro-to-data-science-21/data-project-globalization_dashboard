@@ -1,0 +1,14 @@
+name: data-project-globalization_dashboard
+title: data-project-globalization_dashboard
+username:
+account: milanschroeder
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5362792
+bundleId: 5401322
+url: https://milanschroeder.shinyapps.io/data-project-globalization_dashboard/
+when: 1640185049.66056
+lastSyncTime: 1640185049.66056
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: data
