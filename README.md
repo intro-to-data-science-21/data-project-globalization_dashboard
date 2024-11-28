@@ -79,14 +79,22 @@ Additionally, users can choose a minimal number of indicators as a condition to 
 ### References:
 Dreher, Axel; Gaston, Noel; Martens, Pim (2008): Measuring Globalisation. New York, NY: Springer.
 Gygli, Savina; Haelg, Florian; Potrafke, Niklas; Sturm, Jan-Egbert (2019): The KOF Globalisation Index – revisited. In: The Review of International Organizations 14 (3), S. 543– 574.
+
 Kessler, Johannes (2016): Theorie und Empirie der Globalisierung. Wiesbaden: Springer Fachmedien.
-Schröder, Milan Aljoscha (2020): Gerechte Globalisierung? Zur Messung von Globalisierungsprozessen und ihrem Einfluss auf die Verteilungsgerechtigkeit. Hausarbeit zur Erlangung des akademischen Grades Bachelor of Arts in Politikwissenschaft. Sozialwissenschaften, Medien und Sport der Johannes Gutenberg-Universität Mainz. Available online: https://hertieschool-my.sharepoint.com/:b:/g/personal/204856_hertie-school_org/EWp8tWUAvD5IjOmgbVoQjd8BaXL1bQNd_nuxH0u5ftVhoQ?e=DUxeYO 
+
+Schröder, Milan (2020): Gerechte Globalisierung? Zur Messung von Globalisierungsprozessen und ihrem Einfluss auf die Verteilungsgerechtigkeit. Hausarbeit zur Erlangung des akademischen Grades Bachelor of Arts in Politikwissenschaft. Sozialwissenschaften, Medien und Sport der Johannes Gutenberg-Universität Mainz. Available online: https://hertieschool-my.sharepoint.com/:b:/g/personal/204856_hertie-school_org/EWp8tWUAvD5IjOmgbVoQjd8BaXL1bQNd_nuxH0u5ftVhoQ?e=DUxeYO 
 
 #### Data Sources:
 Central Intelligence Agency (CIA) (2018): The World Factbook 2016-17. Washington, DC.
+
 International Civil Aviation Organisation (ICAO) (1993-2018): The World of Air Transport. Presentation of Air Transport Statistical Results. Compilation from the ICAO Annual Report to the Council.
+
 International Civil Aviation Organisation (ICAO) (2019): State Traffic Statistics. Available online: https://www.icao.int/safety/iStars/Pages/API-Data-Service.aspx.
+
 International Telecommunication Union (ITU) (2018): World Telecommunication Indicators Database.
+
 Union of International Associations (UIA) (2001-2018): Yearbook of International Organizations. Guide to Global and Civil Society Networks. Vol 5: Statistics, Visualizations and Patterns. Leiden: Brill.
+
 United Nations, Department of Economic and Social Affairs, Population Division (UN DESA) (2019): World Population Prospects 2019. Custom data acquired via website. Available online: https://population.un.org/wpp/DataQuery/.
+
 World Bank (2020): World Development Indicators. Available online: https://databank.worldbank.org/source/world-development-indicators.
