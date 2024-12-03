@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+data/
+*.rds
+02_build_dashboard.R
+03_map.R
+03_plotlymap.R
+99_updates.R
